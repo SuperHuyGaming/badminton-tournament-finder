@@ -10,7 +10,7 @@ export const App: React.FC = () => {
   const [totalTournaments, setTotalTournaments] = useState<number>(0);
 
   const theme = useMemo(() => getBadmintonTheme(mode), [mode]);
-  const { isConnected } = useTournamentWebSocket();
+  const { isConnected, isPolling } = useTournamentWebSocket();
 
   const handleToggleTheme = () => {
     setMode((prev) => (prev === 'dark' ? 'light' : 'dark'));
@@ -24,11 +24,12 @@ export const App: React.FC = () => {
           mode={mode}
           onToggleTheme={handleToggleTheme}
           isWsConnected={isConnected}
+          isPolling={isPolling}
           totalTournaments={totalTournaments}
         />
         <Box component="main" sx={{ flexGrow: 1 }}>
           <DiscoveryDashboard
-            isWsConnected={isConnected}
+            isWsConnected={isConnected || isPolling}
             onTotalChange={setTotalTournaments}
           />
         </Box>
@@ -36,4 +37,3 @@ export const App: React.FC = () => {
     </ThemeProvider>
   );
 };
-

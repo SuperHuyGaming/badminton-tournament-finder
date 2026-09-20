@@ -2,6 +2,7 @@ package com.badminton.core.service;
 
 import com.badminton.core.domain.OutboxEvent;
 import com.badminton.core.domain.Tournament;
+import com.badminton.core.dto.PaginatedResponse;
 import com.badminton.core.repository.OutboxEventRepository;
 import com.badminton.core.repository.TournamentRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -12,13 +13,18 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Metrics;
 import org.springframework.data.geo.Point;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.Base64;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -30,21 +36,16 @@ public class TournamentService {
     private final OutboxEventRepository outboxEventRepository;
     private final GeocodingService geocodingService;
     private final ObjectMapper objectMapper;
+    private final ReactiveMongoTemplate mongoTemplate;
 
-    /**
-     * Atomically saves the tournament and records an OutboxEvent within the same MongoDB transaction.
-     * Mathematically eliminates the dual-write problem.
-     */
     @Transactional
     public Mono<Tournament> ingestTournament(Tournament tournament) {
-        // 1. Resolve coordinates to GeoJSON Point
         GeoJsonPoint coordinates = geocodingService.resolveCoordinates(
                 tournament.getEventLocation(),
                 tournament.getHostUniversity()
         );
         tournament.setLocation(coordinates);
 
-        // 2. Persist tournament and create outbox event
         return tournamentRepository.save(tournament)
                 .flatMap(savedTournament -> {
                     try {
@@ -67,19 +68,12 @@ public class TournamentService {
                 });
     }
 
-    /**
-     * Queries upcoming tournaments sorted by distance to the user's location.
-     */
     public Flux<Tournament> findNearbyTournaments(double longitude, double latitude, double maxDistanceMeters) {
         Point userPoint = new Point(longitude, latitude);
-        // Distance in kilometers
         Distance distance = new Distance(maxDistanceMeters / 1000.0, Metrics.KILOMETERS);
         return tournamentRepository.findByLocationNear(userPoint, distance);
     }
 
-    /**
-     * Finds all active upcoming tournaments.
-     */
     public Flux<Tournament> findUpcomingTournaments(boolean openOnly) {
         Instant now = Instant.now();
         Sort sort = Sort.by(Sort.Direction.ASC, "registrationDeadline");
@@ -89,9 +83,58 @@ public class TournamentService {
         return tournamentRepository.findByRegistrationDeadlineAfter(now, sort);
     }
 
-    /**
-     * Optimistically increments RSVP count for a tournament.
-     */
+    public Mono<PaginatedResponse<Tournament>> findUpcomingTournamentsPaginated(boolean openOnly, String cursor, int limit) {
+        Instant now = Instant.now();
+        Query query = new Query();
+        query.limit(limit + 1); // fetch one extra to determine hasNext
+        query.with(Sort.by(Sort.Direction.ASC, "registrationDeadline").and(Sort.by(Sort.Direction.ASC, "_id")));
+
+        Criteria criteria = Criteria.where("registrationDeadline").gte(now);
+        if (openOnly) {
+            criteria = criteria.and("isOpenTournament").is(true);
+        }
+
+        if (cursor != null && !cursor.isEmpty()) {
+            try {
+                String decoded = new String(Base64.getDecoder().decode(cursor));
+                String[] parts = decoded.split("\\|");
+                if (parts.length == 2) {
+                    Instant cursorDeadline = Instant.parse(parts[0]);
+                    String cursorId = parts[1];
+                    
+                    Criteria cursorCriteria = new Criteria().orOperator(
+                        Criteria.where("registrationDeadline").gt(cursorDeadline),
+                        new Criteria().andOperator(
+                            Criteria.where("registrationDeadline").is(cursorDeadline),
+                            Criteria.where("_id").gt(cursorId)
+                        )
+                    );
+                    criteria = new Criteria().andOperator(criteria, cursorCriteria);
+                }
+            } catch (Exception e) {
+                log.warn("Invalid cursor provided: {}", cursor);
+            }
+        }
+        
+        query.addCriteria(criteria);
+
+        return mongoTemplate.find(query, Tournament.class)
+                .collectList()
+                .map(tournaments -> {
+                    boolean hasNext = tournaments.size() > limit;
+                    List<Tournament> data = hasNext ? tournaments.subList(0, limit) : tournaments;
+                    
+                    String nextCursor = null;
+                    if (!data.isEmpty()) {
+                        Tournament last = data.get(data.size() - 1);
+                        String rawCursor = last.getRegistrationDeadline().toString() + "|" + last.getId();
+                        nextCursor = Base64.getEncoder().encodeToString(rawCursor.getBytes());
+                    }
+                    
+                    return new PaginatedResponse<>(data, nextCursor, hasNext);
+                });
+    }
+
     public Mono<Tournament> rsvp(String tournamentId) {
         return tournamentRepository.findById(tournamentId)
                 .flatMap(tournament -> {
@@ -100,4 +143,3 @@ public class TournamentService {
                 });
     }
 }
-

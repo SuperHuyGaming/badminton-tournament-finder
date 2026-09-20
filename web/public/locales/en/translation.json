@@ -1,0 +1,37 @@
+{
+  "navbar": {
+    "title": "Badminton Tournament Finder",
+    "subtitle": "Real-Time Collegiate Circuit Intelligence",
+    "status": {
+      "live": "LIVE FEED",
+      "live_tooltip": "Live WebSocket Connected (STOMP)",
+      "polling": "POLLING",
+      "polling_tooltip": "WebSocket Offline. Using HTTP Polling Fallback.",
+      "offline": "OFFLINE",
+      "offline_tooltip": "Disconnected from Live Stream"
+    },
+    "tournaments_count": "{{count}} Tournaments",
+    "github_tooltip": "View Project on GitHub"
+  },
+  "dashboard": {
+    "active_tournaments": "Active Tournaments Loaded",
+    "open_to_all": "Open to All Athletes",
+    "earliest_closing": "Earliest Registration Closing",
+    "upcoming_tournaments": "Upcoming Tournaments ({{count}})",
+    "load_more": "Load More Tournaments",
+    "loading": "Loading..."
+  },
+  "card": {
+    "open_tournament": "OPEN TOURNAMENT",
+    "collegiate_only": "COLLEGIATE ONLY",
+    "closes": "Closes {{time}}",
+    "registration_closed": "Registration Closed",
+    "ride_form": "Ride Form: {{time}}",
+    "go_to_registration": "Go To Registration Form"
+  },
+  "filter": {
+    "search_placeholder": "Search tournaments by name or location...",
+    "open_only": "Open Tournaments Only",
+    "university_placeholder": "Filter by Host University"
+  }
+}

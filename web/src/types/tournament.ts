@@ -16,6 +16,7 @@ export interface Tournament {
   registrationUrl?: string | null;
   sourceUrl?: string | null;
   flyerImageUrl?: string | null;
+  localizedDescriptions?: Record<string, string>;
   rsvpCount: number;
   createdAt: string;
 }
@@ -26,4 +27,5 @@ export interface FilterCriteria {
   maxDistanceKm: number;
   selectedUniversity: string;
 }
+
 

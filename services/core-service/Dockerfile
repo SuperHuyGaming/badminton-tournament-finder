@@ -1,5 +1,5 @@
 # Multi-stage build for Spring Boot 3.3 / Java 25
-FROM eclipse-temurin:25-jdk-alpine AS builder
+FROM eclipse-temurin:21-jdk-alpine AS builder
 
 WORKDIR /build
 
@@ -10,7 +10,7 @@ COPY src ./src
 RUN apk add --no-cache maven && \
     mvn clean package -DskipTests
 
-FROM eclipse-temurin:25-jre-alpine
+FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
 

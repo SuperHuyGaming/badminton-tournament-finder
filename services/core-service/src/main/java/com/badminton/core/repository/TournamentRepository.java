@@ -13,19 +13,9 @@ import java.time.Instant;
 @Repository
 public interface TournamentRepository extends ReactiveMongoRepository<Tournament, String> {
 
-    /**
-     * Finds tournaments near a given GeoJSON Point using MongoDB 2dsphere $near query.
-     */
     Flux<Tournament> findByLocationNear(Point point, Distance maxDistance);
 
-    /**
-     * Finds tournaments whose registration deadline is after the specified cutoff.
-     */
     Flux<Tournament> findByRegistrationDeadlineAfter(Instant cutoff, Sort sort);
 
-    /**
-     * Finds open tournaments whose registration deadline is after the specified cutoff.
-     */
     Flux<Tournament> findByIsOpenTournamentTrueAndRegistrationDeadlineAfter(Instant cutoff, Sort sort);
 }
-

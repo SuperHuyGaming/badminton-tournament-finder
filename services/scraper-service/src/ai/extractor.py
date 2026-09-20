@@ -7,7 +7,7 @@ from pydantic import ValidationError
 import instructor
 from openai import OpenAI
 
-from src.schemas.tournament.py import TournamentData if False else None  # type check hint
+
 from src.schemas.tournament import TournamentData
 
 logger = logging.getLogger(__name__)

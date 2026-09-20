@@ -1,0 +1,37 @@
+{
+  "navbar": {
+    "title": "Buscador de Torneos de Bádminton",
+    "subtitle": "Inteligencia de Circuito Universitario en Tiempo Real",
+    "status": {
+      "live": "EN VIVO",
+      "live_tooltip": "WebSocket Conectado (STOMP)",
+      "polling": "SONDEO",
+      "polling_tooltip": "WebSocket Desconectado. Usando Sondeo HTTP.",
+      "offline": "DESCONECTADO",
+      "offline_tooltip": "Desconectado de la Transmisión"
+    },
+    "tournaments_count": "{{count}} Torneos",
+    "github_tooltip": "Ver Proyecto en GitHub"
+  },
+  "dashboard": {
+    "active_tournaments": "Torneos Activos Cargados",
+    "open_to_all": "Abierto a Todos los Atletas",
+    "earliest_closing": "Cierre de Inscripción Más Próximo",
+    "upcoming_tournaments": "Próximos Torneos ({{count}})",
+    "load_more": "Cargar Más Torneos",
+    "loading": "Cargando..."
+  },
+  "card": {
+    "open_tournament": "TORNEO ABIERTO",
+    "collegiate_only": "SÓLO UNIVERSITARIO",
+    "closes": "Cierra {{time}}",
+    "registration_closed": "Inscripción Cerrada",
+    "ride_form": "Formulario de Viaje: {{time}}",
+    "go_to_registration": "Ir Al Formulario De Inscripción"
+  },
+  "filter": {
+    "search_placeholder": "Buscar torneos por nombre o ubicación...",
+    "open_only": "Solo Torneos Abiertos",
+    "university_placeholder": "Filtrar por Universidad Anfitriona"
+  }
+}

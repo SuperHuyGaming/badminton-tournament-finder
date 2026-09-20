@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Container,
   Grid,
@@ -7,6 +7,8 @@ import {
   Paper,
   Alert,
   Fade,
+  Button,
+  CircularProgress
 } from '@mui/material';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import PublicIcon from '@mui/icons-material/Public';
@@ -16,74 +18,7 @@ import { TournamentCard } from '../components/TournamentCard.tsx';
 import { TournamentMap } from '../components/TournamentMap.tsx';
 import { FilterBar } from '../components/FilterBar.tsx';
 import { LiveNotificationSnackbar } from '../components/LiveNotificationSnackbar.tsx';
-import { useOptimisticRsvp } from '../hooks/useOptimisticRsvp.ts';
 import { useTournamentWebSocket } from '../hooks/useTournamentWebSocket.ts';
-
-// Initial fallback mock data so UI renders instantly even before API Gateway is loaded
-const INITIAL_TOURNAMENTS: Tournament[] = [
-  {
-    id: 'tourn-vcu-1',
-    tournamentName: 'VCU Open Badminton Championship 2026',
-    hostUniversity: 'Virginia Commonwealth University',
-    eventLocation: 'UVA Memorial Gymnasium, 210 Emmet St S, Charlottesville, VA 22903',
-    location: { type: 'Point', coordinates: [-78.5080, 38.0356] },
-    registrationDeadline: new Date(Date.now() + 86400000 * 3).toISOString(),
-    rideFormDeadline: new Date(Date.now() + 86400000 * 1.5).toISOString(),
-    isOpenTournament: true,
-    registrationUrl: 'https://forms.gle/vcuOpen2026Mock',
-    rsvpCount: 28,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'tourn-umd-2',
-    tournamentName: 'UMD Terrapin Invitational 2026',
-    hostUniversity: 'University of Maryland',
-    eventLocation: 'Eppley Recreation Center, 4128 Valley Dr, College Park, MD 20742',
-    location: { type: 'Point', coordinates: [-76.9426, 38.9897] },
-    registrationDeadline: new Date(Date.now() + 86400000 * 6).toISOString(),
-    rideFormDeadline: new Date(Date.now() + 86400000 * 4).toISOString(),
-    isOpenTournament: true,
-    registrationUrl: 'https://forms.gle/umdTerps2026Mock',
-    rsvpCount: 42,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'tourn-towson-3',
-    tournamentName: 'Towson Tiger Smash Open',
-    hostUniversity: 'Towson University',
-    eventLocation: 'Burdick Hall Gym, 8000 York Rd, Towson, MD 21252',
-    location: { type: 'Point', coordinates: [-76.6111, 39.3928] },
-    registrationDeadline: new Date(Date.now() + 86400000 * 9).toISOString(),
-    isOpenTournament: true,
-    registrationUrl: 'https://linktr.ee/towsonubc',
-    rsvpCount: 15,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'tourn-umbc-4',
-    tournamentName: 'UMBC Retriever Collegiate Classic',
-    hostUniversity: 'UMBC',
-    eventLocation: 'RAC Arena, 1000 Hilltop Cir, Baltimore, MD 21250',
-    location: { type: 'Point', coordinates: [-76.7136, 39.2556] },
-    registrationDeadline: new Date(Date.now() + 86400000 * 12).toISOString(),
-    isOpenTournament: false,
-    registrationUrl: 'https://forms.gle/umbcRetriever2026',
-    rsvpCount: 31,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'tourn-jhu-5',
-    tournamentName: 'Johns Hopkins Spring Open',
-    hostUniversity: 'Johns Hopkins University',
-    eventLocation: 'Ralph S. O\'Connor Center, 3400 N Charles St, Baltimore, MD 21218',
-    location: { type: 'Point', coordinates: [-76.6205, 39.3299] },
-    registrationDeadline: new Date(Date.now() + 86400000 * 14).toISOString(),
-    isOpenTournament: true,
-    registrationUrl: 'https://linktr.ee/jhuttc',
-    rsvpCount: 19,
-    createdAt: new Date().toISOString(),
-  },
-];
 
 interface DiscoveryDashboardProps {
   isWsConnected: boolean;
@@ -93,12 +28,49 @@ interface DiscoveryDashboardProps {
 export const DiscoveryDashboard: React.FC<DiscoveryDashboardProps> = ({
   onTotalChange,
 }) => {
-  const [tournaments, setTournaments] = useState<Tournament[]>(INITIAL_TOURNAMENTS);
+  const [tournaments, setTournaments] = useState<Tournament[]>([]);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [hasNext, setHasNext] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [openOnly, setOpenOnly] = useState(false);
   const [selectedUniversity, setSelectedUniversity] = useState('');
   const [newAlertTournament, setNewAlertTournament] = useState<Tournament | null>(null);
+  const { t } = useTranslation();
   const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
+
+  const fetchTournaments = useCallback(async (cursor: string | null = null, reset: boolean = false) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const url = new URL('http://localhost:8080/api/v1/tournaments');
+      if (cursor) {
+        url.searchParams.append('cursor', cursor);
+      }
+      url.searchParams.append('openOnly', openOnly.toString());
+      
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        throw new Error('Failed to fetch tournaments');
+      }
+      const data = await response.json();
+      
+      setTournaments(prev => reset ? data.data : [...prev, ...data.data]);
+      setNextCursor(data.nextCursor);
+      setHasNext(data.hasNext);
+    } catch (err) {
+      console.error('Error fetching tournaments:', err);
+      setError('Failed to load tournaments from the server.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [openOnly]);
+
+  useEffect(() => {
+    fetchTournaments(null, true);
+  }, [fetchTournaments]);
 
   // Optimistic RSVP Hook
   const { rsvpdIds, handleRsvp, errorMessage, clearError } = useOptimisticRsvp(
@@ -139,19 +111,23 @@ export const DiscoveryDashboard: React.FC<DiscoveryDashboardProps> = ({
         t.eventLocation.toLowerCase().includes(searchQuery.toLowerCase()) ||
         t.hostUniversity.toLowerCase().includes(searchQuery.toLowerCase());
 
-      const matchesOpen = openOnly ? t.isOpenTournament : true;
       const matchesUni = selectedUniversity ? t.hostUniversity === selectedUniversity : true;
 
-      return matchesSearch && matchesOpen && matchesUni;
+      return matchesSearch && matchesUni;
     });
-  }, [tournaments, searchQuery, openOnly, selectedUniversity]);
+  }, [tournaments, searchQuery, selectedUniversity]);
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
-      {/* Top Notification Banner if Optimistic RSVP fails */}
       {errorMessage && (
         <Alert severity="error" onClose={clearError} sx={{ mb: 3, borderRadius: 2 }}>
           {errorMessage}
+        </Alert>
+      )}
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
+          {error}
         </Alert>
       )}
 
@@ -176,7 +152,7 @@ export const DiscoveryDashboard: React.FC<DiscoveryDashboardProps> = ({
                 {tournaments.length}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                Active Tournaments in DMV
+                {t('dashboard.active_tournaments')}
               </Typography>
             </Box>
           </Paper>
@@ -201,7 +177,7 @@ export const DiscoveryDashboard: React.FC<DiscoveryDashboardProps> = ({
                 {tournaments.filter((t) => t.isOpenTournament).length}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                Open to All Athletes (Non-Collegiate)
+                {t('dashboard.open_to_all')}
               </Typography>
             </Box>
           </Paper>
@@ -226,7 +202,7 @@ export const DiscoveryDashboard: React.FC<DiscoveryDashboardProps> = ({
                 48 Hours
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                Earliest Registration Closing
+                {t('dashboard.earliest_closing')}
               </Typography>
             </Box>
           </Paper>
@@ -253,7 +229,7 @@ export const DiscoveryDashboard: React.FC<DiscoveryDashboardProps> = ({
 
       {/* Tournaments Grid */}
       <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-        Upcoming Tournaments ({filteredTournaments.length})
+        {t('dashboard.upcoming_tournaments', { count: filteredTournaments.length })}
       </Typography>
 
       <Grid container spacing={3}>
@@ -263,14 +239,28 @@ export const DiscoveryDashboard: React.FC<DiscoveryDashboardProps> = ({
               <div>
                 <TournamentCard
                   tournament={t}
-                  isRsvpd={rsvpdIds.has(t.id)}
-                  onRsvp={handleRsvp}
-                />
+                                  />
               </div>
             </Fade>
           </Grid>
         ))}
       </Grid>
+      
+      {/* Load More Button */}
+      {hasNext && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <Button 
+            variant="outlined" 
+            size="large"
+            onClick={() => fetchTournaments(nextCursor, false)}
+            disabled={isLoading}
+            startIcon={isLoading ? <CircularProgress size={20} /> : null}
+            sx={{ px: 4, py: 1.5, borderRadius: 2 }}
+          >
+            {isLoading ? 'Loading...' : '{t('dashboard.load_more')}'}
+          </Button>
+        </Box>
+      )}
 
       {/* Real-Time Live Notification Snackbar */}
       <LiveNotificationSnackbar
@@ -284,4 +274,5 @@ export const DiscoveryDashboard: React.FC<DiscoveryDashboardProps> = ({
     </Container>
   );
 };
+
 

@@ -13,7 +13,6 @@ spring:
   cloud:
     gateway:
       routes:
-        # Route 1: Core Service REST endpoints
         - id: core-service-tournaments
           uri: ${CORE_SERVICE_URL:http://localhost:8081}
           predicates:
@@ -29,13 +28,11 @@ spring:
                 redis-rate-limiter.burstCapacity: 40
                 redis-rate-limiter.requestedTokens: 1
 
-        # Route 2: WebSocket STOMP upgraded connections
         - id: core-service-websocket
           uri: ${CORE_SERVICE_WS_URL:ws://localhost:8081}
           predicates:
             - Path=/ws/**
 
-        # Route 3: Python Scraper endpoints
         - id: scraper-service
           uri: ${SCRAPER_SERVICE_URL:http://localhost:8000}
           predicates:
@@ -65,4 +62,3 @@ management:
     web:
       exposure:
         include: health,info,gateway
-

@@ -13,30 +13,27 @@ import {
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import HowToRegIcon from '@mui/icons-material/HowToReg';
+import InfoIcon from '@mui/icons-material/Info';
 import { formatDistanceToNow, isPast, parseISO } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 import { Tournament } from '../types/tournament.ts';
 
 interface TournamentCardProps {
   tournament: Tournament;
-  isRsvpd: boolean;
-  onRsvp: (tournament: Tournament) => void;
 }
 
 export const TournamentCard: React.FC<TournamentCardProps> = ({
-  tournament,
-  isRsvpd,
-  onRsvp,
+  tournament
 }) => {
+  const { t, i18n } = useTranslation();
   const regDeadline = parseISO(tournament.registrationDeadline);
   const isDeadlinePassed = isPast(regDeadline);
 
   // Time remaining string
   const timeRemaining = isDeadlinePassed
-    ? 'Registration Closed'
-    : `Closes ${formatDistanceToNow(regDeadline, { addSuffix: true })}`;
+    ? t('card.registration_closed')
+    : t('card.closes', { time: formatDistanceToNow(regDeadline, { addSuffix: true }) });
 
   const hostInitials = tournament.hostUniversity
     .split(' ')
@@ -44,6 +41,10 @@ export const TournamentCard: React.FC<TournamentCardProps> = ({
     .join('')
     .substring(0, 3)
     .toUpperCase();
+
+  // Get localized description based on current language
+  const currentLang = i18n.resolvedLanguage || 'en';
+  const localizedDesc = tournament.localizedDescriptions?.[currentLang] || tournament.localizedDescriptions?.['en'] || null;
 
   return (
     <Card variant="outlined" sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -60,7 +61,7 @@ export const TournamentCard: React.FC<TournamentCardProps> = ({
           </Box>
 
           <Chip
-            label={tournament.isOpenTournament ? 'OPEN TOURNAMENT' : 'COLLEGIATE ONLY'}
+            label={tournament.isOpenTournament ? t('card.open_tournament') : t('card.collegiate_only')}
             size="small"
             color={tournament.isOpenTournament ? 'success' : 'info'}
             variant="outlined"
@@ -80,6 +81,16 @@ export const TournamentCard: React.FC<TournamentCardProps> = ({
             {tournament.eventLocation}
           </Typography>
         </Box>
+
+        {/* Localized Description */}
+        {localizedDesc && (
+          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.75, mb: 1.5 }}>
+            <InfoIcon fontSize="small" sx={{ color: 'text.secondary', mt: 0.2 }} />
+            <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+              {localizedDesc}
+            </Typography>
+          </Box>
+        )}
 
         <Divider sx={{ my: 1.5 }} />
 
@@ -104,42 +115,31 @@ export const TournamentCard: React.FC<TournamentCardProps> = ({
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
               <DirectionsCarIcon fontSize="small" sx={{ color: 'secondary.main' }} />
               <Typography variant="caption" color="text.secondary">
-                Ride Form: {formatDistanceToNow(parseISO(tournament.rideFormDeadline), { addSuffix: true })}
+                {t('card.ride_form', { time: formatDistanceToNow(parseISO(tournament.rideFormDeadline), { addSuffix: true }) })}
               </Typography>
             </Box>
           )}
         </Box>
       </CardContent>
 
-      <CardActions sx={{ p: 2, pt: 0, justifyContent: 'space-between' }}>
-        {/* Optimistic RSVP Button */}
-        <Button
-          variant={isRsvpd ? 'contained' : 'outlined'}
-          color={isRsvpd ? 'success' : 'primary'}
-          size="small"
-          startIcon={isRsvpd ? <CheckCircleIcon /> : <HowToRegIcon />}
-          onClick={() => onRsvp(tournament)}
-          disabled={isDeadlinePassed}
-          sx={{ fontWeight: 600 }}
-        >
-          {isRsvpd ? 'Signed Up' : `RSVP (${tournament.rsvpCount || 0})`}
-        </Button>
-
+      <CardActions sx={{ p: 2, pt: 0 }}>
         {/* External Registration Link */}
-        {tournament.registrationUrl && (
-          <Button
-            component="a"
-            href={tournament.registrationUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            size="small"
-            endIcon={<OpenInNewIcon fontSize="small" />}
-          >
-            Register Form
-          </Button>
-        )}
+        <Button
+          component="a"
+          href={tournament.registrationUrl || tournament.sourceUrl || '#'}
+          target="_blank"
+          rel="noopener noreferrer"
+          size="medium"
+          fullWidth
+          variant="contained"
+          color="primary"
+          endIcon={<OpenInNewIcon fontSize="small" />}
+          disabled={isDeadlinePassed}
+          sx={{ fontWeight: 600, borderRadius: 2 }}
+        >
+          {isDeadlinePassed ? t('card.registration_closed') : t('card.go_to_registration')}
+        </Button>
       </CardActions>
     </Card>
   );
 };
-

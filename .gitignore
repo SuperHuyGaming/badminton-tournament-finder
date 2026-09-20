@@ -70,3 +70,4 @@ kafka_data/
 # Google Drive sync temp files
 .tmp.driveupload/
 
+.env

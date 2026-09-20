@@ -11,6 +11,8 @@ import org.springframework.data.mongodb.core.index.GeoSpatialIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 @Data
 @Builder
@@ -26,10 +28,6 @@ public class Tournament {
     private String hostUniversity;
     private String eventLocation;
 
-    /**
-     * GeoJSON Point [longitude, latitude] for geospatial querying.
-     * Backed by a 2dsphere index for accurate earth-surface distance calculations.
-     */
     @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
     private GeoJsonPoint location;
 
@@ -42,9 +40,11 @@ public class Tournament {
     private String flyerImageUrl;
 
     @Builder.Default
+    private Map<String, String> localizedDescriptions = new HashMap<>();
+
+    @Builder.Default
     private Integer rsvpCount = 0;
 
     @Builder.Default
     private Instant createdAt = Instant.now();
 }
-

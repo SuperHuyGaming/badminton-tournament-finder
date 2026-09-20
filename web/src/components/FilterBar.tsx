@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Paper,
   Box,
@@ -95,4 +96,5 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     </Paper>
   );
 };
+
 
