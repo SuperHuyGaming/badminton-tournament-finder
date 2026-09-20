@@ -74,7 +74,7 @@ services:
         max-file: "3"
 
   # ----------------------------------------------------------------------------
-  # Core Backend & Outbox Service (Java 21 / Spring Boot 3.3)
+  # Core Backend & Outbox Service (Java 25 / Spring Boot 3.3)
   # ----------------------------------------------------------------------------
   core-service:
     image: ghcr.io/${GITHUB_REPOSITORY_OWNER:-badmintonfinder}/badminton-core-service:${IMAGE_TAG:-latest}

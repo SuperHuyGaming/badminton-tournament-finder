@@ -1,6 +1,6 @@
 import React from 'react';
 import { Snackbar, Alert, Typography, Box, Button } from '@mui/material';
-import SportsTennisIcon from '@mui/icons-material/SportsTennis';
+import { BadmintonIcon } from './BadmintonIcon';
 import { Tournament } from '../types/tournament.ts';
 
 interface LiveNotificationSnackbarProps {
@@ -29,7 +29,7 @@ export const LiveNotificationSnackbar: React.FC<LiveNotificationSnackbarProps> =
         onClose={onClose}
         severity="success"
         variant="filled"
-        icon={<SportsTennisIcon fontSize="inherit" />}
+        icon={<BadmintonIcon fontSize="inherit" />}
         sx={{ width: '100%', borderRadius: 2, boxShadow: 6 }}
         action={
           <Button

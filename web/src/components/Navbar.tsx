@@ -8,7 +8,7 @@ import {
   IconButton,
   Tooltip,
 } from '@mui/material';
-import SportsTennisIcon from '@mui/icons-material/SportsTennis';
+import { BadmintonIcon } from './BadmintonIcon';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import GitHubIcon from '@mui/icons-material/GitHub';
@@ -33,7 +33,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       <Toolbar sx={{ justifyContent: 'space-between' }}>
         {/* Brand */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <SportsTennisIcon sx={{ color: 'primary.main', fontSize: 32 }} />
+          <BadmintonIcon sx={{ color: 'primary.main', fontSize: 32 }} />
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
               Badminton Tournament Finder

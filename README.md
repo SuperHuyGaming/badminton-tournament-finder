@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)](https://python.org)
-[![Java](https://img.shields.io/badge/Java-21_LTS-ED8B00?logo=openjdk&logoColor=white)](https://openjdk.org)
+[![Java](https://img.shields.io/badge/Java-25_LTS-ED8B00?logo=openjdk&logoColor=white)](https://openjdk.org)
 [![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.3-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
 [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)](https://react.dev)
 [![MUI](https://img.shields.io/badge/MUI-v6-007FFF?logo=mui&logoColor=white)](https://mui.com)
@@ -41,7 +41,7 @@ flowchart TD
         Inst -->|Sanitized TournamentData JSON| IngestClient["Internal REST Dispatcher"]
     end
 
-    subgraph Core_Backend ["Core Business & Outbox Layer (Java 21 / Spring Boot 3.3)"]
+    subgraph Core_Backend ["Core Business & Outbox Layer (Java 25 / Spring Boot 3.3)"]
         IngestClient -->|POST /api/v1/internal/tournaments| CoreAPI["Spring Boot Core Service"]
         CoreAPI --> Geocode["Geocoding Service\n(Address -> GeoJSON Point)"]
         Geocode --> MongoTx["MongoDB @Transactional Unit"]
@@ -80,7 +80,7 @@ This project is organized across specialized engineering disciplines, providing 
 | Role | Focus Area | Primary Tech Stack | Key Responsibilities |
 | :--- | :--- | :--- | :--- |
 | **Fullstack Engineer** | End-to-End Integration | React, TypeScript, Java, Python | STOMP WebSocket client-server data flow, optimistic UI mutations, unified local orchestration |
-| **Backend / Distributed Systems** | Core Microservices & Streaming | Java 21, Spring Boot 3.3, Kafka, MongoDB | Transactional Outbox pattern, MongoDB Change Streams, 2dsphere proximity search |
+| **Backend / Distributed Systems** | Core Microservices & Streaming | Java 25, Spring Boot 3.3, Kafka, MongoDB | Transactional Outbox pattern, MongoDB Change Streams, 2dsphere proximity search |
 | **AI / ML Engineer** | Multimodal Document Extraction | Python 3.12, GPT-4o Vision, Instructor, Pydantic | Flyer prompt engineering, structured schema enforcement, self-healing validation retry loops |
 | **Security & Compliance** | Scraping Legality & API Defense | Spring Security, Bucket4j, Proxy Pools | CFAA legal compliance (*Meta v. Bright Data*), TLS spoofing, Redis rate limiting, JWT auth |
 | **UX / UI Designer** | Design System & Experience | Material-UI (MUI v6), Figma, Leaflet | Tournament cards, urgency countdown timers, carpool seat selectors, WCAG AA accessibility |
@@ -112,7 +112,7 @@ badminton-tournament-finder/
 │       └── schemas/                 # Pydantic & Java DTO shared JSON schemas
 ├── services/
 │   ├── scraper-service/             # Python 3.12 / FastAPI / Celery / Instaloader
-│   ├── core-service/                # Java 21 / Spring Boot 3.3 / WebFlux / Kafka
+│   ├── core-service/                # Java 25 / Spring Boot 3.3 / WebFlux / Kafka
 │   └── api-gateway/                 # Spring Cloud Gateway WebFlux + Resilience4j + Bucket4j
 ├── web/                             # React 18 / TypeScript / Vite / MUI v6
 ├── docker-compose.yml               # Production & Dev local cluster orchestration
@@ -130,7 +130,7 @@ badminton-tournament-finder/
 
 ### Prerequisites
 - **Docker & Docker Compose** (v2.20+)
-- **Node.js** (v20+), **Java JDK** (21 LTS), **Python** (3.12+)
+- **Node.js** (v20+), **Java JDK** (25 LTS), **Python** (3.12+)
 - *(Optional)* [Task](https://taskfile.dev) runner: `brew install go-task` or `npm install -g @go-task/cli`
 
 ### 1. Clone & Configure

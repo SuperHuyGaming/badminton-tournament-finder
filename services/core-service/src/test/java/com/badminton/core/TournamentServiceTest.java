@@ -7,6 +7,7 @@ import com.badminton.core.repository.TournamentRepository;
 import com.badminton.core.service.GeocodingService;
 import com.badminton.core.service.TournamentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,7 +38,7 @@ class TournamentServiceTest {
     private GeocodingService geocodingService;
 
     @Spy
-    private ObjectMapper objectMapper = new ObjectMapper();
+        private ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     @InjectMocks
     private TournamentService tournamentService;
