@@ -9,3 +9,4 @@ export function BadmintonIcon(props: SvgIconProps) {
     </SvgIcon>
   );
 }
+

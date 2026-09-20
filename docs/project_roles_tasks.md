@@ -105,3 +105,4 @@ Welcome to the Badminton Tournament Finder open-source project! We have structur
 8. **Tech Talks & Demos**: Record a loom video or YouTube walkthrough of the codebase to help onboard new developers faster.
 9. **Sponsorship & Funding**: Set up GitHub Sponsors or Open Collective to fund server costs and API keys (like OpenAI).
 10. **Roadmap Management**: Maintain a public GitHub Projects Kanban board so contributors know what features are prioritized for the next major release.
+
