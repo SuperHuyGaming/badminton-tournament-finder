@@ -1,0 +1,166 @@
+services:
+  # ----------------------------------------------------------------------------
+  # Production Reverse Proxy & SSL Termination
+  # ----------------------------------------------------------------------------
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: btf-prod-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - certbot_www:/var/www/certbot:ro
+    depends_on:
+      - web
+      - api-gateway
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ----------------------------------------------------------------------------
+  # React + MUI Frontend (Production Nginx Static Hosting)
+  # ----------------------------------------------------------------------------
+  web:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER:-badmintonfinder}/badminton-web:${IMAGE_TAG:-latest}
+    container_name: btf-prod-web
+    restart: always
+    environment:
+      - VITE_API_GATEWAY_URL=https://${DOMAIN_NAME:-badmintonfinder.org}
+      - VITE_WS_GATEWAY_URL=wss://${DOMAIN_NAME:-badmintonfinder.org}/ws
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 256M
+        reservations:
+          cpus: "0.10"
+          memory: 64M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ----------------------------------------------------------------------------
+  # API Gateway (Spring Cloud Gateway WebFlux - Netty)
+  # ----------------------------------------------------------------------------
+  api-gateway:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER:-badmintonfinder}/badminton-api-gateway:${IMAGE_TAG:-latest}
+    container_name: btf-prod-api-gateway
+    restart: always
+    environment:
+      - SPRING_DATA_REDIS_HOST=${REDIS_HOST:-redis}
+      - SPRING_DATA_REDIS_PORT=${REDIS_PORT:-6379}
+      - SPRING_DATA_REDIS_PASSWORD=${REDIS_PASSWORD}
+      - CORE_SERVICE_URL=http://core-service:8081
+      - SCRAPER_SERVICE_URL=http://scraper-api:8000
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ----------------------------------------------------------------------------
+  # Core Backend & Outbox Service (Java 21 / Spring Boot 3.3)
+  # ----------------------------------------------------------------------------
+  core-service:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER:-badmintonfinder}/badminton-core-service:${IMAGE_TAG:-latest}
+    container_name: btf-prod-core-service
+    restart: always
+    environment:
+      - SPRING_DATA_MONGODB_URI=${MONGO_URI}
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${KAFKA_BOOTSTRAP_SERVERS}
+      - SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL=${KAFKA_SECURITY_PROTOCOL:-SASL_SSL}
+      - SPRING_KAFKA_PROPERTIES_SASL_MECHANISM=${KAFKA_SASL_MECHANISM:-SCRAM-SHA-512}
+      - SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG=org.apache.kafka.common.security.scram.ScramLoginModule required username="${KAFKA_SASL_USERNAME}" password="${KAFKA_SASL_PASSWORD}";
+      - SPRING_DATA_REDIS_HOST=${REDIS_HOST:-redis}
+      - SPRING_DATA_REDIS_PORT=${REDIS_PORT:-6379}
+      - SPRING_DATA_REDIS_PASSWORD=${REDIS_PASSWORD}
+    deploy:
+      resources:
+        limits:
+          cpus: "1.50"
+          memory: 1024M
+        reservations:
+          cpus: "0.50"
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ----------------------------------------------------------------------------
+  # Python Scraper API & AI Extraction Service
+  # ----------------------------------------------------------------------------
+  scraper-api:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER:-badmintonfinder}/badminton-scraper-service:${IMAGE_TAG:-latest}
+    container_name: btf-prod-scraper-api
+    restart: always
+    environment:
+      - REDIS_URL=${REDIS_URL}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - APIFY_API_TOKEN=${APIFY_API_TOKEN}
+      - BRIGHT_DATA_API_KEY=${BRIGHT_DATA_API_KEY}
+      - MOBILE_PROXY_URL=${MOBILE_PROXY_URL}
+      - RESIDENTIAL_PROXY_URL=${RESIDENTIAL_PROXY_URL}
+      - USE_MOCK_DATA=false
+      - CORE_SERVICE_URL=http://core-service:8081
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.20"
+          memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ----------------------------------------------------------------------------
+  # Celery Distributed Scraping Workers
+  # ----------------------------------------------------------------------------
+  celery-worker:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER:-badmintonfinder}/badminton-scraper-service:${IMAGE_TAG:-latest}
+    container_name: btf-prod-celery-worker
+    restart: always
+    command: ["celery", "-A", "src.tasks.celery_app.app", "worker", "--concurrency=4", "--loglevel=info", "-Q", "scrapes,extraction"]
+    environment:
+      - REDIS_URL=${REDIS_URL}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - APIFY_API_TOKEN=${APIFY_API_TOKEN}
+      - MOBILE_PROXY_URL=${MOBILE_PROXY_URL}
+      - USE_MOCK_DATA=false
+      - CORE_SERVICE_URL=http://core-service:8081
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.20"
+          memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  certbot_www:

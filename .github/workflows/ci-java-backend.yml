@@ -1,0 +1,43 @@
+name: Java Backend CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'services/core-service/**'
+      - 'services/api-gateway/**'
+      - 'packages/contracts/**'
+      - '.github/workflows/ci-java-backend.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'services/core-service/**'
+      - 'services/api-gateway/**'
+      - 'packages/contracts/**'
+      - '.github/workflows/ci-java-backend.yml'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Java 25 LTS (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build & Test Core Service (with Testcontainers)
+        working-directory: services/core-service
+        run: |
+          mvn clean test --batch-mode
+
+      - name: Build & Test API Gateway
+        working-directory: services/api-gateway
+        run: |
+          mvn clean test --batch-mode
+

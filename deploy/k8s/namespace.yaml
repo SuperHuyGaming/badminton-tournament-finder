@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: badminton-production
+  labels:
+    environment: production
+    app.kubernetes.io/part-of: badminton-tournament-finder
