@@ -6,7 +6,6 @@ import {
   Typography,
   Paper,
   Alert,
-  CircularProgress,
   Fade,
 } from '@mui/material';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';

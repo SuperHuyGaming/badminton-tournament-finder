@@ -12,7 +12,6 @@ import {
   InputLabel,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
 
 interface FilterBarProps {
   searchQuery: string;

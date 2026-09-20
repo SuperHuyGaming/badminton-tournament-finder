@@ -1,0 +1,57 @@
+name: 🐛 Bug Report
+description: Report a reproducible bug or issue
+title: "[BUG]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a bug! Please ensure you have checked existing issues first.
+  - type: dropdown
+    id: component
+    attributes:
+      label: Affected Component
+      description: Which service or component is experiencing the issue?
+      options:
+        - "Frontend (React + MUI)"
+        - "Core Backend (Java / Spring Boot)"
+        - "Scraper Service (Python / Instaloader / Celery)"
+        - "AI Extraction (GPT-4o Vision / Instructor)"
+        - "API Gateway (Resilience4j / Bucket4j)"
+        - "Data Pipeline (MongoDB / Kafka / Outbox)"
+        - "Infrastructure (Docker / CI/CD)"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the Bug
+      description: A clear and concise description of what went wrong.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Detailed steps to reproduce the issue.
+      placeholder: |
+        1. Start the stack with `docker compose up`
+        2. Navigate to '...'
+        3. Click on '....'
+        4. See error
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or Screenshots
+      description: Attach relevant terminal logs, browser console output, or screenshots.
+      render: shell
+

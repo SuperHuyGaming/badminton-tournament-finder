@@ -1,0 +1,29 @@
+# Java Upgrade Summary: Badminton Tournament Finder
+
+- **Session**: 20260920162030
+- **Target**: Java 25 LTS
+- **JDK**: Eclipse Temurin 25.0.4
+- **Maven**: 3.9.16
+- **Version control**: Unavailable; workspace is not a Git repository
+
+## Changes
+
+- Updated both Maven services to compile for Java 25.
+- Updated Docker builder/runtime images, CI workflows, production deployment configuration, README, contributing guide, role docs, and PR template.
+- Upgraded Lombok to 1.18.48 and configured explicit annotation processing.
+- Upgraded Byte Buddy to 1.18.14 for Mockito Java 25 class-file support.
+- Updated the core service test ObjectMapper with Java Time support.
+
+## Validation
+
+- `services/core-service`: `mvn clean test-compile -q` passed.
+- `services/api-gateway`: `mvn clean test-compile -q` passed.
+- `services/core-service`: `mvn clean test -q` passed.
+- `services/api-gateway`: `mvn clean test -q` passed.
+- Java 21 runtime-reference scan: no stale references in project runtime, configuration, CI, or documentation surfaces.
+- CVE validation: no known CVEs requiring fixes were reported for the checked direct dependencies.
+
+## Notes
+
+- The Java 21 baseline was skipped because JDK 21 is not installed on this machine.
+- Generated upgrade logs and plan history retain Java 21 references as historical evidence.

@@ -1,0 +1,68 @@
+server:
+  port: ${GATEWAY_PORT:8080}
+
+spring:
+  application:
+    name: api-gateway
+
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+
+  cloud:
+    gateway:
+      routes:
+        # Route 1: Core Service REST endpoints
+        - id: core-service-tournaments
+          uri: ${CORE_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/api/v1/tournaments/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: coreServiceCircuitBreaker
+                fallbackUri: forward:/fallback/tournaments
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 20
+                redis-rate-limiter.burstCapacity: 40
+                redis-rate-limiter.requestedTokens: 1
+
+        # Route 2: WebSocket STOMP upgraded connections
+        - id: core-service-websocket
+          uri: ${CORE_SERVICE_WS_URL:ws://localhost:8081}
+          predicates:
+            - Path=/ws/**
+
+        # Route 3: Python Scraper endpoints
+        - id: scraper-service
+          uri: ${SCRAPER_SERVICE_URL:http://localhost:8000}
+          predicates:
+            - Path=/api/v1/scraper/**
+          filters:
+            - StripPrefix=3
+            - name: CircuitBreaker
+              args:
+                name: scraperServiceCircuitBreaker
+                fallbackUri: forward:/fallback/scraper
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      coreServiceCircuitBreaker:
+        slidingWindowSize: 20
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 5
+      scraperServiceCircuitBreaker:
+        slidingWindowSize: 10
+        failureRateThreshold: 40
+        waitDurationInOpenState: 15s
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+
