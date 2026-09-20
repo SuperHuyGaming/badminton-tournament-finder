@@ -46,3 +46,4 @@ test.describe('Tournament Discovery Dashboard', () => {
     await expect(page.getByText('UMBC Retriever Collegiate Classic')).not.toBeVisible();
   });
 });
+

@@ -83,7 +83,7 @@ This project adheres to the [Contributor Covenant v2.1](CODE_OF_CONDUCT.md). By 
 ### 2. Quickstart with Taskfile
 ```bash
 # 1. Clone repository
-git clone https://github.com/your-org/badminton-tournament-finder.git
+git clone https://github.com/SuperHuyGaming/badminton-tournament-finder.git
 cd badminton-tournament-finder
 
 # 2. Copy environment template

@@ -135,7 +135,7 @@ badminton-tournament-finder/
 
 ### 1. Clone & Configure
 ```bash
-git clone https://github.com/your-org/badminton-tournament-finder.git
+git clone https://github.com/SuperHuyGaming/badminton-tournament-finder.git
 cd badminton-tournament-finder
 cp .env.example .env
 ```

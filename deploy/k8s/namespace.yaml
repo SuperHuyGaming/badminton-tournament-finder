@@ -5,3 +5,4 @@ metadata:
   labels:
     environment: production
     app.kubernetes.io/part-of: badminton-tournament-finder
+

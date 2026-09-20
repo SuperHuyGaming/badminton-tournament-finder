@@ -75,7 +75,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <Tooltip title="View on GitHub">
             <IconButton
               component="a"
-              href="https://github.com/your-org/badminton-tournament-finder"
+              href="https://github.com/SuperHuyGaming/badminton-tournament-finder"
               target="_blank"
               rel="noopener noreferrer"
               color="inherit"

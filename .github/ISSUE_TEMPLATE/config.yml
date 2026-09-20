@@ -1,7 +1,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: Community Discussions
-    url: https://github.com/your-org/badminton-tournament-finder/discussions
+    url: https://github.com/SuperHuyGaming/badminton-tournament-finder/discussions
     about: Ask questions, share ideas, and connect with other contributors.
   - name: Security Vulnerability
     url: mailto:security@badmintonfinder.org

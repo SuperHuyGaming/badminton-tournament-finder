@@ -148,3 +148,4 @@ jobs:
           chmod +x scripts/prod-smoke-test.sh
           # Run canary smoke test against production domain
           ./scripts/prod-smoke-test.sh "${{ vars.PRODUCTION_URL || 'https://badmintonfinder.org' }}" || echo "Canary smoke test executed."
+

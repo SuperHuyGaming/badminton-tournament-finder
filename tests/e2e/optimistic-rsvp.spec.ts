@@ -23,3 +23,4 @@ test.describe('Optimistic UI RSVP Workflows', () => {
     await expect(signedUpButton).toHaveClass(/MuiButton-containedSuccess/);
   });
 });
+

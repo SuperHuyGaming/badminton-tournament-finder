@@ -34,3 +34,4 @@ test.describe('Real-Time WebSocket & Notification Toast', () => {
     // Note: If event listener is hooked to window, this verifies snackbar animation
   });
 });
+

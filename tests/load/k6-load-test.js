@@ -37,3 +37,4 @@ export default function () {
   // Small randomized sleep between 500ms and 1500ms
   sleep(0.5 + Math.random());
 }
+
