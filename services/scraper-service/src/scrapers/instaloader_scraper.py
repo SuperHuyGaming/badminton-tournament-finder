@@ -32,7 +32,6 @@ class InstagramScraper:
             download_videos=False,
             download_comments=False,
             save_metadata=True,
-            compress_history=False,
             quiet=True,
         )
 
