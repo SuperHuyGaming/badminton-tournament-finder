@@ -22,9 +22,7 @@ class LinktreeResolver:
         """
         destinations = []
         try:
-            async with httpx.AsyncClient(
-                timeout=self.timeout, follow_redirects=True
-            ) as client:
+            async with httpx.AsyncClient(timeout=self.timeout, follow_redirects=True) as client:
                 headers = {
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
                 }
@@ -43,9 +41,7 @@ class LinktreeResolver:
                 if next_data_script and next_data_script.string:
                     try:
                         data = json.loads(next_data_script.string)
-                        links = (
-                            data.get("props", {}).get("pageProps", {}).get("links", [])
-                        )
+                        links = data.get("props", {}).get("pageProps", {}).get("links", [])
                         for link in links:
                             url = link.get("url")
                             if url:
@@ -68,7 +64,5 @@ class LinktreeResolver:
 
         # Deduplicate results
         unique_destinations = list(dict.fromkeys(destinations))
-        logger.info(
-            f"Resolved {len(unique_destinations)} outbound links from {linktree_url}"
-        )
+        logger.info(f"Resolved {len(unique_destinations)} outbound links from {linktree_url}")
         return unique_destinations

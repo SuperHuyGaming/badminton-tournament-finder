@@ -20,8 +20,12 @@ class TournamentExtractor:
 
     def __init__(self, api_key: str | None = None):
         self.api_key = api_key or os.getenv("OPENAI_API_KEY", "")
-        self.use_mock = os.getenv("USE_MOCK_DATA", "true").lower() == "true" or not self.api_key or self.api_key.startswith("mock")
-        
+        self.use_mock = (
+            os.getenv("USE_MOCK_DATA", "true").lower() == "true"
+            or not self.api_key
+            or self.api_key.startswith("mock")
+        )
+
         if not self.use_mock:
             self.client = instructor.from_openai(OpenAI(api_key=self.api_key))
         else:
@@ -31,13 +35,10 @@ class TournamentExtractor:
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=2, max=10),
         retry=retry_if_exception_type((ValidationError, Exception)),
-        reraise=True
+        reraise=True,
     )
     def extract_from_flyer(
-        self,
-        image_url_or_base64: str,
-        caption_text: str,
-        source_handle: str = "collegiate_club"
+        self, image_url_or_base64: str, caption_text: str, source_handle: str = "collegiate_club"
     ) -> TournamentData:
         """
         Extract structured TournamentData from a tournament flyer image and accompanying caption.
@@ -72,16 +73,18 @@ class TournamentExtractor:
                             {"type": "text", "text": prompt},
                             {
                                 "type": "image_url",
-                                "image_url": {"url": image_url_or_base64, "detail": "high"}
-                            }
-                        ]
+                                "image_url": {"url": image_url_or_base64, "detail": "high"},
+                            },
+                        ],
                     }
                 ],
-                temperature=0.1
+                temperature=0.1,
             )
             return tournament
         except ValidationError as val_err:
-            logger.warning(f"Schema validation error during extraction, retrying via tenacity: {val_err}")
+            logger.warning(
+                f"Schema validation error during extraction, retrying via tenacity: {val_err}"
+            )
             raise val_err
         except Exception as e:
             logger.error(f"Unexpected error during GPT-4o Vision extraction: {e}")
@@ -98,7 +101,7 @@ class TournamentExtractor:
                 "reg_days": 5,
                 "ride_days": 3,
                 "is_open": True,
-                "reg_url": "https://forms.gle/vcuOpen2026Mock"
+                "reg_url": "https://forms.gle/vcuOpen2026Mock",
             },
             "umdclubbadminton": {
                 "tournament_name": "UMD Terrapin Invitational 2026",
@@ -107,7 +110,7 @@ class TournamentExtractor:
                 "reg_days": 7,
                 "ride_days": 4,
                 "is_open": True,
-                "reg_url": "https://forms.gle/umdTerps2026Mock"
+                "reg_url": "https://forms.gle/umdTerps2026Mock",
             },
             "towsonubc": {
                 "tournament_name": "Towson Tiger Smash Open",
@@ -116,7 +119,7 @@ class TournamentExtractor:
                 "reg_days": 10,
                 "ride_days": 6,
                 "is_open": True,
-                "reg_url": "https://linktr.ee/towsonubc"
+                "reg_url": "https://linktr.ee/towsonubc",
             },
             "umbc.badminton": {
                 "tournament_name": "UMBC Retriever Collegiate Classic",
@@ -125,7 +128,7 @@ class TournamentExtractor:
                 "reg_days": 12,
                 "ride_days": 8,
                 "is_open": False,
-                "reg_url": "https://forms.gle/umbcRetriever2026"
+                "reg_url": "https://forms.gle/umbcRetriever2026",
             },
             "jhuttc": {
                 "tournament_name": "Johns Hopkins Spring Open",
@@ -134,19 +137,22 @@ class TournamentExtractor:
                 "reg_days": 14,
                 "ride_days": 10,
                 "is_open": True,
-                "reg_url": "https://linktr.ee/jhuttc"
-            }
+                "reg_url": "https://linktr.ee/jhuttc",
+            },
         }
 
-        fixture = fixtures.get(handle.lower(), {
-            "tournament_name": f"{handle.capitalize()} Badminton Open",
-            "host_university": handle.upper(),
-            "event_location": "Collegiate Recreation Center, DMV Area",
-            "reg_days": 6,
-            "ride_days": 4,
-            "is_open": True,
-            "reg_url": "https://forms.gle/mockTournamentForm"
-        })
+        fixture = fixtures.get(
+            handle.lower(),
+            {
+                "tournament_name": f"{handle.capitalize()} Badminton Open",
+                "host_university": handle.upper(),
+                "event_location": "Collegiate Recreation Center, DMV Area",
+                "reg_days": 6,
+                "ride_days": 4,
+                "is_open": True,
+                "reg_url": "https://forms.gle/mockTournamentForm",
+            },
+        )
 
         return TournamentData(
             tournament_name=fixture["tournament_name"],
@@ -157,6 +163,5 @@ class TournamentExtractor:
             is_open_tournament=fixture["is_open"],
             registration_url=fixture["reg_url"],
             source_url=f"https://instagram.com/p/mock_{handle}",
-            flyer_image_url=image_url
+            flyer_image_url=image_url,
         )
-

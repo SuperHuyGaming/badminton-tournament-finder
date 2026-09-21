@@ -18,9 +18,7 @@ def test_instaloader_mock_posts():
 async def test_google_forms_parser_fallback():
     """Verify Google Forms parser gracefully handles invalid or mock URLs without throwing."""
     parser = GoogleFormsParser()
-    metadata = await parser.extract_form_metadata(
-        "https://forms.gle/nonexistent-mock-form"
-    )
+    metadata = await parser.extract_form_metadata("https://forms.gle/nonexistent-mock-form")
     assert isinstance(metadata, dict)
     assert "title" in metadata
     assert "is_carpool" in metadata

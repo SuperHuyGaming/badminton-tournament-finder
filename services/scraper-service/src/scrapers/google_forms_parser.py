@@ -29,11 +29,7 @@ class GoogleFormsParser:
         }
 
         try:
-            transport = (
-                httpx.AsyncHTTPTransport(proxy=self.proxy_url)
-                if self.proxy_url
-                else None
-            )
+            transport = httpx.AsyncHTTPTransport(proxy=self.proxy_url) if self.proxy_url else None
             async with httpx.AsyncClient(
                 transport=transport, follow_redirects=True, timeout=12.0
             ) as client:
@@ -44,9 +40,7 @@ class GoogleFormsParser:
                 response = await client.get(form_url, headers=headers)
 
                 if response.status_code != 200:
-                    logger.warning(
-                        f"Google Form request failed with HTTP {response.status_code}"
-                    )
+                    logger.warning(f"Google Form request failed with HTTP {response.status_code}")
                     return metadata
 
                 soup = BeautifulSoup(response.text, "html.parser")

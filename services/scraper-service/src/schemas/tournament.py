@@ -9,9 +9,7 @@ class TournamentData(BaseModel):
     Enforces strict types for downstream Spring Boot consumption.
     """
 
-    tournament_name: str = Field(
-        description="The formal name of the badminton tournament."
-    )
+    tournament_name: str = Field(description="The formal name of the badminton tournament.")
     host_university: str = Field(
         description="The institution hosting the event (e.g., VCU, UMD, Towson, UMBC, JHU)."
     )

@@ -28,9 +28,7 @@ app.conf.update(
     # Prevent Redis from redelivering in-flight tasks during long LLM inferences
     broker_transport_options={"visibility_timeout": 7200},  # 2 hours
     # Enforce strict rate limits to avoid Instagram defensive triggers
-    task_annotations={
-        "src.tasks.celery_app.scrape_collegiate_club": {"rate_limit": "10/m"}
-    },
+    task_annotations={"src.tasks.celery_app.scrape_collegiate_club": {"rate_limit": "10/m"}},
 )
 
 # HTTPX persistent connection pool with resource limits
@@ -93,13 +91,9 @@ def scrape_collegiate_club(self, target_handle: str):
     payload = tournament.model_dump(mode="json")
     try:
         with httpx.Client(limits=HTTP_LIMITS, timeout=15.0) as client:
-            resp = client.post(
-                f"{CORE_SERVICE_URL}/api/v1/internal/ingest", json=payload
-            )
+            resp = client.post(f"{CORE_SERVICE_URL}/api/v1/internal/ingest", json=payload)
             resp.raise_for_status()
-            logger.info(
-                f"Successfully ingested tournament: {tournament.tournament_name}"
-            )
+            logger.info(f"Successfully ingested tournament: {tournament.tournament_name}")
             return {"status": "SUCCESS", "tournament_name": tournament.tournament_name}
     except Exception as exc:
         logger.error(f"Failed to transmit tournament to Core Backend: {exc}")

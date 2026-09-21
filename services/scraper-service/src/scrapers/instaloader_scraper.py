@@ -45,9 +45,7 @@ class InstagramScraper:
             except Exception as e:
                 logger.warning(f"Could not load session file: {e}")
 
-    def fetch_latest_posts(
-        self, target_handle: str, max_posts: int = 3
-    ) -> list[dict[str, Any]]:
+    def fetch_latest_posts(self, target_handle: str, max_posts: int = 3) -> list[dict[str, Any]]:
         """
         Fetch recent post flyers and captions. Tries Instaloader first;
         fails over to Apify if an IP ban, 429, or login wall is encountered.
@@ -64,9 +62,7 @@ class InstagramScraper:
             )
             return self._fetch_via_apify(target_handle, max_posts)
 
-    def _fetch_via_instaloader(
-        self, target_handle: str, max_posts: int
-    ) -> list[dict[str, Any]]:
+    def _fetch_via_instaloader(self, target_handle: str, max_posts: int) -> list[dict[str, Any]]:
         profile = instaloader.Profile.from_username(self.loader.context, target_handle)
         posts_data = []
 
@@ -89,9 +85,7 @@ class InstagramScraper:
         logger.info(f"Successfully retrieved {len(posts_data)} posts via Instaloader.")
         return posts_data
 
-    def _fetch_via_apify(
-        self, target_handle: str, max_posts: int
-    ) -> list[dict[str, Any]]:
+    def _fetch_via_apify(self, target_handle: str, max_posts: int) -> list[dict[str, Any]]:
         if not self.apify_token:
             logger.error("No APIFY_API_TOKEN provided. Cannot execute failover.")
             return []
@@ -111,9 +105,7 @@ class InstagramScraper:
             results.append(
                 {
                     "post_id": item.get("id", ""),
-                    "url": item.get(
-                        "url", f"https://www.instagram.com/{target_handle}/"
-                    ),
+                    "url": item.get("url", f"https://www.instagram.com/{target_handle}/"),
                     "caption": item.get("caption", ""),
                     "image_url": item.get("displayUrl", ""),
                     "timestamp": item.get("timestamp", datetime.utcnow().isoformat()),

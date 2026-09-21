@@ -82,9 +82,7 @@ def extract_direct(payload: dict[str, str]) -> TournamentData:
     handle = payload.get("handle", "test_club")
 
     if not image_url or not caption:
-        raise HTTPException(
-            status_code=400, detail="Both 'image_url' and 'caption' are required."
-        )
+        raise HTTPException(status_code=400, detail="Both 'image_url' and 'caption' are required.")
 
     extractor = TournamentExtractor()
     return extractor.extract_from_flyer(image_url, caption, handle)
