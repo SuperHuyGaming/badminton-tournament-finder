@@ -15,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -38,7 +39,10 @@ class TournamentServiceTest {
     private GeocodingService geocodingService;
 
     @Spy
-        private ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    private ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+
+    @Mock
+    private ReactiveMongoTemplate mongoTemplate;
 
     @InjectMocks
     private TournamentService tournamentService;

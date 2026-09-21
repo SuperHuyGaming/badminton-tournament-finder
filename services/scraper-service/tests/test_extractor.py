@@ -1,7 +1,7 @@
-import pytest
 from datetime import datetime
-from src.schemas.tournament import TournamentData
+
 from src.ai.extractor import TournamentExtractor
+from src.schemas.tournament import TournamentData
 
 
 def test_mock_extraction_schema_validity():

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Container,
   Grid,
@@ -72,14 +73,6 @@ export const DiscoveryDashboard: React.FC<DiscoveryDashboardProps> = ({
     fetchTournaments(null, true);
   }, [fetchTournaments]);
 
-  // Optimistic RSVP Hook
-  const { rsvpdIds, handleRsvp, errorMessage, clearError } = useOptimisticRsvp(
-    (updatedTournament) => {
-      setTournaments((prev) =>
-        prev.map((t) => (t.id === updatedTournament.id ? updatedTournament : t))
-      );
-    }
-  );
 
   // Live WebSocket Integration
   useTournamentWebSocket((newTournament) => {
@@ -119,11 +112,7 @@ export const DiscoveryDashboard: React.FC<DiscoveryDashboardProps> = ({
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
-      {errorMessage && (
-        <Alert severity="error" onClose={clearError} sx={{ mb: 3, borderRadius: 2 }}>
-          {errorMessage}
-        </Alert>
-      )}
+
 
       {error && (
         <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
@@ -257,7 +246,7 @@ export const DiscoveryDashboard: React.FC<DiscoveryDashboardProps> = ({
             startIcon={isLoading ? <CircularProgress size={20} /> : null}
             sx={{ px: 4, py: 1.5, borderRadius: 2 }}
           >
-            {isLoading ? 'Loading...' : '{t('dashboard.load_more')}'}
+            {isLoading ? 'Loading...' : t('dashboard.load_more')}
           </Button>
         </Box>
       )}

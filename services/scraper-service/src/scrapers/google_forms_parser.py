@@ -1,6 +1,7 @@
 import logging
 import re
-from typing import Dict, Any, Optional
+from typing import Any
+
 import httpx
 from bs4 import BeautifulSoup
 
@@ -13,10 +14,10 @@ class GoogleFormsParser:
     and carpool/ride-share notices.
     """
 
-    def __init__(self, proxy_url: Optional[str] = None):
+    def __init__(self, proxy_url: str | None = None):
         self.proxy_url = proxy_url
 
-    async def extract_form_metadata(self, form_url: str) -> Dict[str, Any]:
+    async def extract_form_metadata(self, form_url: str) -> dict[str, Any]:
         """
         Fetches Google Form HTML and extracts title, description, and deadline hints.
         """

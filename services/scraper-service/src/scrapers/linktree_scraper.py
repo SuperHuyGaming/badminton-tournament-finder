@@ -1,7 +1,6 @@
 import json
 import logging
-import re
-from typing import List, Optional
+
 import httpx
 from bs4 import BeautifulSoup
 
@@ -17,7 +16,7 @@ class LinktreeResolver:
     def __init__(self, timeout_seconds: float = 10.0):
         self.timeout = timeout_seconds
 
-    async def resolve_destination_urls(self, linktree_url: str) -> List[str]:
+    async def resolve_destination_urls(self, linktree_url: str) -> list[str]:
         """
         Fetches the Linktree page and extracts active links, focusing on Google Forms or event pages.
         """

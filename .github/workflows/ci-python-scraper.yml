@@ -43,7 +43,7 @@ jobs:
         working-directory: services/scraper-service
         run: |
           python -m pip install --upgrade pip
-          pip install ruff pytest pytest-asyncio pytest-cov httpx fastapi celery redis pydantic instructor openai beautifulsoup4
+          pip install -e ".[dev]"
 
       - name: Lint and Format Check (ruff)
         working-directory: services/scraper-service

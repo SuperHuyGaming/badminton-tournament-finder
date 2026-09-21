@@ -1,13 +1,15 @@
-import os
 import asyncio
 import logging
-from celery import Celery
+import os
+
 import httpx
-from src.scrapers.instaloader_scraper import InstagramScraper
-from src.scrapers.linktree_scraper import LinktreeResolver
-from src.scrapers.google_forms_parser import GoogleFormsParser
+from celery import Celery
+
 from src.ai.extractor import TournamentExtractor
 from src.schemas.tournament import TournamentData
+from src.scrapers.google_forms_parser import GoogleFormsParser
+from src.scrapers.instaloader_scraper import InstagramScraper
+from src.scrapers.linktree_scraper import LinktreeResolver
 
 logger = logging.getLogger(__name__)
 

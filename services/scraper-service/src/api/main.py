@@ -1,13 +1,12 @@
-import os
 import logging
-from typing import Dict, Any, List
-from fastapi import FastAPI, HTTPException, BackgroundTasks
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from typing import Any
 
-from src.schemas.tournament import TournamentData, ScrapeJobRequest
-from src.tasks.celery_app import scrape_collegiate_club
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+
 from src.ai.extractor import TournamentExtractor
+from src.schemas.tournament import ScrapeJobRequest, TournamentData
+from src.tasks.celery_app import scrape_collegiate_club
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -38,12 +37,12 @@ DMV_COLLEGIATE_HANDLES = [
 
 
 @app.get("/health")
-def health_check() -> Dict[str, str]:
+def health_check() -> dict[str, str]:
     return {"status": "healthy", "service": "scraper-service"}
 
 
 @app.post("/api/v1/trigger-scrape")
-def trigger_scrape(job: ScrapeJobRequest) -> Dict[str, Any]:
+def trigger_scrape(job: ScrapeJobRequest) -> dict[str, Any]:
     """
     Pushes an asynchronous scraping job to Celery queue backed by Redis.
     """
@@ -57,7 +56,7 @@ def trigger_scrape(job: ScrapeJobRequest) -> Dict[str, Any]:
 
 
 @app.post("/api/v1/sync-dmv-circuit")
-def sync_dmv_circuit() -> Dict[str, Any]:
+def sync_dmv_circuit() -> dict[str, Any]:
     """
     Triggers scraping cycle across all target DMV collegiate badminton clubs.
     """
@@ -74,7 +73,7 @@ def sync_dmv_circuit() -> Dict[str, Any]:
 
 
 @app.post("/api/v1/extract-direct", response_model=TournamentData)
-def extract_direct(payload: Dict[str, str]) -> TournamentData:
+def extract_direct(payload: dict[str, str]) -> TournamentData:
     """
     Synchronous preview endpoint to test GPT-4o Vision extraction on an image and caption.
     """

@@ -1,6 +1,6 @@
 from datetime import datetime
-from typing import Optional
-from pydantic import BaseModel, Field, HttpUrl
+
+from pydantic import BaseModel, Field
 
 
 class TournamentData(BaseModel):
@@ -21,7 +21,7 @@ class TournamentData(BaseModel):
     registration_deadline: datetime = Field(
         description="The exact date and time registration closes in ISO 8601 format."
     )
-    ride_form_deadline: Optional[datetime] = Field(
+    ride_form_deadline: datetime | None = Field(
         default=None,
         description="The deadline for submitting carpool or ride-share requests, if applicable.",
     )
@@ -29,14 +29,14 @@ class TournamentData(BaseModel):
         default=True,
         description="True if the tournament is open to non-collegiate or external players.",
     )
-    registration_url: Optional[str] = Field(
+    registration_url: str | None = Field(
         default=None,
         description="The extracted Google Form or Linktree URL for registration.",
     )
-    source_url: Optional[str] = Field(
+    source_url: str | None = Field(
         default=None, description="Instagram post permalink or origin URL."
     )
-    flyer_image_url: Optional[str] = Field(
+    flyer_image_url: str | None = Field(
         default=None,
         description="Public URL or local storage path of the tournament flyer image.",
     )

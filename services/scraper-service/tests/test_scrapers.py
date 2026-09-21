@@ -1,6 +1,7 @@
 import pytest
-from src.scrapers.instaloader_scraper import InstagramScraper
+
 from src.scrapers.google_forms_parser import GoogleFormsParser
+from src.scrapers.instaloader_scraper import InstagramScraper
 
 
 def test_instaloader_mock_posts():

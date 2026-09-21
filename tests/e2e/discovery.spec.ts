@@ -13,8 +13,8 @@ test.describe('Tournament Discovery Dashboard', () => {
 
   test('should display active tournaments and interactive map', async ({ page }) => {
     // Verify KPI cards
-    await expect(page.getByText('Active Tournaments in DMV')).toBeVisible();
-    await expect(page.getByText('Open to All Athletes (Non-Collegiate)')).toBeVisible();
+    await expect(page.getByText('Active Tournaments Loaded')).toBeVisible();
+    await expect(page.getByText('Open to All Athletes')).toBeVisible();
 
     // Verify Leaflet map exists
     const map = page.locator('.leaflet-container');
@@ -28,7 +28,7 @@ test.describe('Tournament Discovery Dashboard', () => {
   });
 
   test('should filter tournaments by search query', async ({ page }) => {
-    const searchInput = page.getByPlaceholder('Search by tournament name, city, or venue...');
+    const searchInput = page.getByPlaceholder('Search tournaments by name or location...');
     await searchInput.fill('UMD');
 
     // Should display UMD tournament
@@ -39,7 +39,7 @@ test.describe('Tournament Discovery Dashboard', () => {
   });
 
   test('should filter tournaments by "Open to All Players" toggle', async ({ page }) => {
-    const openSwitch = page.getByLabel('Open to All Players');
+    const openSwitch = page.getByLabel('Open Tournaments Only');
     await openSwitch.check();
 
     // UMBC is Collegiate Only, so it should be filtered out

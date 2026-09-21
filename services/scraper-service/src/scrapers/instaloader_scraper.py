@@ -1,7 +1,8 @@
-import os
 import logging
-from typing import List, Dict, Any, Optional
+import os
 from datetime import datetime
+from typing import Any
+
 import instaloader
 from apify_client import ApifyClient
 
@@ -16,9 +17,9 @@ class InstagramScraper:
 
     def __init__(
         self,
-        proxy_url: Optional[str] = None,
-        session_file: Optional[str] = None,
-        apify_token: Optional[str] = None,
+        proxy_url: str | None = None,
+        session_file: str | None = None,
+        apify_token: str | None = None,
     ):
         self.proxy_url = proxy_url or os.getenv("MOBILE_PROXY_URL")
         self.session_file = session_file or os.getenv("INSTALOADER_SESSION_FILE")
@@ -46,7 +47,7 @@ class InstagramScraper:
 
     def fetch_latest_posts(
         self, target_handle: str, max_posts: int = 3
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Fetch recent post flyers and captions. Tries Instaloader first;
         fails over to Apify if an IP ban, 429, or login wall is encountered.
@@ -65,7 +66,7 @@ class InstagramScraper:
 
     def _fetch_via_instaloader(
         self, target_handle: str, max_posts: int
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         profile = instaloader.Profile.from_username(self.loader.context, target_handle)
         posts_data = []
 
@@ -90,7 +91,7 @@ class InstagramScraper:
 
     def _fetch_via_apify(
         self, target_handle: str, max_posts: int
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         if not self.apify_token:
             logger.error("No APIFY_API_TOKEN provided. Cannot execute failover.")
             return []
@@ -123,7 +124,7 @@ class InstagramScraper:
         logger.info(f"Successfully retrieved {len(results)} posts via Apify failover.")
         return results
 
-    def _mock_posts(self, target_handle: str, max_posts: int) -> List[Dict[str, Any]]:
+    def _mock_posts(self, target_handle: str, max_posts: int) -> list[dict[str, Any]]:
         return [
             {
                 "post_id": f"mock_post_{target_handle}_1",

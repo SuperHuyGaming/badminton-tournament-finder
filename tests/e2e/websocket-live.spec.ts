@@ -31,6 +31,7 @@ test.describe('Real-Time WebSocket & Notification Toast', () => {
 
     // Check if notification snackbar UI elements render cleanly
     const toast = page.locator('.MuiSnackbar-root');
+    await expect(toast).toBeVisible();
     // Note: If event listener is hooked to window, this verifies snackbar animation
   });
 });

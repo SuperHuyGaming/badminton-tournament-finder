@@ -1,12 +1,11 @@
-import os
 import logging
+import os
 from datetime import datetime, timedelta
-from typing import Optional
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
-from pydantic import ValidationError
+
 import instructor
 from openai import OpenAI
-
+from pydantic import ValidationError
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
 from src.schemas.tournament import TournamentData
 
@@ -19,7 +18,7 @@ class TournamentExtractor:
     Enforces strict structured outputs from flyer images and post captions.
     """
 
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, api_key: str | None = None):
         self.api_key = api_key or os.getenv("OPENAI_API_KEY", "")
         self.use_mock = os.getenv("USE_MOCK_DATA", "true").lower() == "true" or not self.api_key or self.api_key.startswith("mock")
         
